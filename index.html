@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FactSpark</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+</head>
+<body>
+  <!-- Theme Toggle -->
+  <button id="themeToggle" class="theme-toggle">🌙</button>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">⚡</div>
+      <h1>FactSpark</h1>
+      <p>Discover fascinating facts every day</p>
+      <a href="favorites.html" class="fav-link">⭐ View Favorites</a>
+    </header>
+
+    <!-- Daily Fact -->
+    <section id="dailyFactSection" class="daily-fact"></section>
+
+    <!-- Categories -->
+    <div id="categoryButtons" class="categories"></div>
+
+    <!-- Main Fact Card -->
+    <section class="fact-card-container">
+      <div class="nav-controls left">
+        <button id="prevBtn" class="nav-btn">⟨</button>
+      </div>
+      
+      <div id="factCard" class="fact-card">
+        <div class="fact-content">
+          <div class="fact-icon">💡</div>
+          <p id="factText" class="fact-text">Loading amazing facts...</p>
+          <span id="factCategory" class="fact-category">General</span>
+          <div class="fact-buttons">
+            <button id="favoriteBtn" class="fav-btn">♡</button>
+            <button id="randomBtn" class="random-btn">🔄 Random Fact</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="nav-controls right">
+        <button id="nextBtn" class="nav-btn">⟩</button>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+      <div>
+        <div id="totalFacts" class="stat-number">0</div>
+        <div class="stat-label">Total Facts</div>
+      </div>
+      <div>
+        <div id="favoriteCount" class="stat-number">0</div>
+        <div class="stat-label">Favorites</div>
+      </div>
+      <div>
+        <div id="categoryCount" class="stat-number">0</div>
+        <div class="stat-label">Categories</div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
