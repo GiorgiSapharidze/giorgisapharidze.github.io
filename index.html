@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GioR Code Scanner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #0D0D12;
+    --surface:   #16161E;
+    --border:    #242430;
+    --purple:    #7B3FE4;
+    --purple-lt: #2A1F4A;
+    --purple-md: #B8A0FF;
+    --muted:     #555566;
+    --fg:        #E8E8F0;
+    --green:     #4ADE80;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg); color: var(--fg);
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 60px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+  .logo-grid {
+    width: 28px; height: 28px; border-radius: 7px; background: var(--purple);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px;
+  }
+  .logo-grid span { background: rgba(255,255,255,0.85); border-radius: 1px; }
+  .logo-grid span:nth-child(3) { background: transparent; }
+  .wordmark { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); }
+  .wordmark em { color: var(--purple); font-style: normal; }
+  .nav-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+  /* MAIN */
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 36px 24px; }
+
+  .card {
+    width: 100%; max-width: 860px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+  }
+  .card-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 18px; border-bottom: 1px solid var(--border); background: #111118;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .dot:nth-child(1){background:#ff5f57} .dot:nth-child(2){background:#febc2e} .dot:nth-child(3){background:#28c840}
+  .bar-label { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  .card-body { display: grid; grid-template-columns: 1fr 1fr; }
+
+  /* drop */
+  .drop-zone {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 40px 28px; cursor: pointer; min-height: 340px; transition: background 0.15s;
+  }
+  .drop-zone:hover, .drop-zone.over { background: #1C1C28; }
+  .drop-zone input { display: none; }
+  #src-preview { width: 100%; max-height: 300px; object-fit: contain; display: none; border-radius: 8px; }
+  .drop-ph { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .drop-icon {
+    width: 52px; height: 52px; border-radius: 12px; background: var(--purple-lt);
+    display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+  }
+  .drop-icon svg { width: 24px; height: 24px; stroke: var(--purple-md); }
+  .drop-title { font-size: 14px; font-weight: 600; }
+  .drop-sub { font-size: 12px; color: var(--muted); }
+  .chips { display: flex; gap: 6px; margin-top: 4px; }
+  .chip { padding: 2px 9px; border-radius: 50px; border: 1px solid var(--border); font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); }
+
+  /* right */
+  .right-pane { display: flex; flex-direction: column; padding: 24px; gap: 16px; }
+  .pane-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+  #grid-canvas { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--border); image-rendering: pixelated; background: #111; aspect-ratio: 1; margin-top: 8px; }
+  .decode-btn {
+    width: 100%; padding: 11px; border-radius: 10px; border: none; cursor: pointer;
+    background: var(--purple); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.15s;
+  }
+  .decode-btn:hover:not(:disabled) { opacity: 0.85; }
+  .decode-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* progress */
+  .progress { height: 2px; background: var(--border); }
+  .progress-fill { height: 100%; width: 0%; background: var(--purple); transition: width 0.2s; }
+
+  /* output */
+  .output { border-top: 1px solid var(--border); padding: 20px 24px; display: none; }
+  .output.visible { display: block; animation: up 0.25s ease; }
+  @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .output-text { font-family: 'DM Mono', monospace; font-size: 14px; word-break: break-all; line-height: 1.7; margin-top: 6px; }
+  .output-text a { color: var(--purple-md); text-decoration: none; border-bottom: 1px solid #5B3AA0; }
+  .output-text a:hover { color: #fff; }
+  .open-btn {
+    display: none; margin-top: 12px; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 50px; background: var(--purple); color: #fff;
+    font-size: 13px; font-weight: 500; border: none; cursor: pointer;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .open-btn:hover { opacity: 0.82; }
+  .open-btn.show { display: inline-flex; }
+  .stats { display: flex; gap: 10px; margin-top: 14px; }
+  .stat { flex: 1; padding: 10px 12px; border-radius: 8px; background: #111118; border: 1px solid var(--border); }
+  .stat-val { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+  .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* status */
+  .status-bar {
+    padding: 9px 20px; border-top: 1px solid var(--border);
+    font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted);
+    background: #111118; display: flex; align-items: center; gap: 8px;
+  }
+  .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border); padding: 18px 32px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-copy { font-size: 12px; color: var(--muted); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .footer-links a:hover { color: var(--fg); }
+
+  @media (max-width: 600px) {
+    nav, footer { padding: 0 20px; }
+    .card-body { grid-template-columns: 1fr; }
+    .drop-zone { border-right: none; border-bottom: 1px solid var(--border); min-height: 200px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; height: auto; padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-grid"><span></span><span></span><span></span><span></span></div>
+    <span class="wordmark">Gio<em>R</em></span>
+  </a>
+  <span class="nav-tag">code scanner</span>
+</nav>
+
+<main>
+  <div class="card">
+    <div class="card-bar">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <span class="bar-label">gior-scanner v1.0</span>
+    </div>
+
+    <div class="card-body">
+      <div class="drop-zone" id="drop-zone"
+           onclick="document.getElementById('file-input').click()"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <input type="file" id="file-input" accept="image/*" onchange="loadFile(this.files[0])">
+        <img id="src-preview" alt="source">
+        <div class="drop-ph" id="drop-ph">
+          <div class="drop-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>
+            </svg>
+          </div>
+          <div class="drop-title">Drop a GioR image</div>
+          <div class="drop-sub">or click to browse</div>
+          <div class="chips">
+            <span class="chip">PNG</span><span class="chip">JPG</span><span class="chip">WEBP</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-pane">
+        <div>
+          <div class="pane-label">Grid map</div>
+          <canvas id="grid-canvas"></canvas>
+        </div>
+        <button class="decode-btn" id="decode-btn" onclick="runDecode()" disabled>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          Decode image
+        </button>
+      </div>
+    </div>
+
+    <div class="progress"><div class="progress-fill" id="prog"></div></div>
+
+    <div class="output" id="output">
+      <div class="pane-label">Decoded payload</div>
+      <div class="output-text" id="output-text"></div>
+      <a class="open-btn" id="open-btn" href="#" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        Open link
+      </a>
+      <div class="stats">
+        <div class="stat"><div class="stat-val" id="s-bits">—</div><div class="stat-lbl">Bits</div></div>
+        <div class="stat"><div class="stat-val" id="s-chars">—</div><div class="stat-lbl">Chars</div></div>
+        <div class="stat"><div class="stat-val" id="s-dens">—</div><div class="stat-lbl">Density</div></div>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <span id="status">Ready — drop a GioR image to begin</span>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a href="#" class="nav-logo">
+    <div class="logo-grid"><span></span><span></span><span></span><span></span></div>
+    <span class="wordmark">Gio<em>R</em></span>
+  </a>
+  <span class="footer-copy">© 2025 GioR. Open format.</span>
+  <div class="footer-links">
+    <a href="#">Docs</a>
+    <a href="#">GitHub</a>
+    <a href="#">Spec</a>
+  </div>
+</footer>
+
+<script>
+let imgData = null;
+const setStatus = t => document.getElementById('status').textContent = t;
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('over'); }
+function onDragLeave()  { document.getElementById('drop-zone').classList.remove('over'); }
+function onDrop(e)      { e.preventDefault(); onDragLeave(); const f = e.dataTransfer.files[0]; if (f) loadFile(f); }
+
+function loadFile(file) {
+  if (!file?.type.startsWith('image/')) return;
+  document.getElementById('output').classList.remove('visible');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const off = document.createElement('canvas');
+      off.width = img.width; off.height = img.height;
+      const ctx = off.getContext('2d'); ctx.drawImage(img, 0, 0);
+      imgData = { px: ctx.getImageData(0, 0, img.width, img.height), w: img.width, h: img.height };
+      const prev = document.getElementById('src-preview');
+      prev.src = e.target.result; prev.style.display = 'block';
+      document.getElementById('drop-ph').style.display = 'none';
+      drawGrid(null);
+      document.getElementById('decode-btn').disabled = false;
+      setStatus(`Loaded ${img.width}×${img.height} — click Decode`);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function whiteBuffer() {
+  const s = new Set();
+  for (let r = 12; r < 24; r++)
+    for (let c = 12; c < 28; c++)
+      if (!(r >= 16 && r <= 19 && c >= 16)) s.add(r+','+c);
+  return s;
+}
+
+function drawGrid(bits) {
+  const cv = document.getElementById('grid-canvas');
+  const G = 32, C = 10;
+  cv.width = G*C; cv.height = G*C;
+  const ctx = cv.getContext('2d');
+  const wb = whiteBuffer();
+  ctx.fillStyle = '#111'; ctx.fillRect(0, 0, cv.width, cv.height);
+  let bi = 0;
+  for (let r = 0; r < G; r++) {
+    for (let c = 0; c < G; c++) {
+      const prong = (r>=16&&r<=19&&c>=16), buf = wb.has(r+','+c);
+      const zone  = r>=4&&r<28&&c>=4&&c<28;
+      let fill = '#1A1A22';
+      if (zone) {
+        if (prong||buf)   fill = '#2A1825';
+        else if (bits && bi < bits.length) { fill = bits[bi]==='1' ? '#1A3A2A' : '#1A1A22'; bi++; }
+        else if (!bits)   fill = '#1E1535';
+      }
+      ctx.fillStyle = fill;
+      ctx.fillRect(c*C, r*C, C, C);
+      ctx.strokeStyle = '#2A2A38'; ctx.lineWidth = 0.5;
+      ctx.strokeRect(c*C+.25, r*C+.25, C-.5, C-.5);
+    }
+  }
+}
+
+function runDecode() {
+  if (!imgData) return;
+  const btn = document.getElementById('decode-btn');
+  btn.disabled = true; setStatus('Decoding…');
+  document.getElementById('output').classList.remove('visible');
+  document.getElementById('open-btn').classList.remove('show');
+  const prog = document.getElementById('prog');
+  prog.style.width = '0%';
+  let p = 0; const iv = setInterval(() => { p = Math.min(80, p+15); prog.style.width = p+'%'; }, 40);
+
+  setTimeout(() => {
+    clearInterval(iv); prog.style.width = '100%';
+    try {
+      const { text, bits, bitsRead, ones } = decode(imgData);
+      const density = bitsRead ? Math.round(ones/bitsRead*100) : 0;
+      drawGrid(bits);
+      document.getElementById('s-bits').textContent  = bitsRead;
+      document.getElementById('s-chars').textContent = text.length;
+      document.getElementById('s-dens').textContent  = density+'%';
+      const outEl = document.getElementById('output-text');
+      const display = text || '(no printable characters found)';
+      const urlRe = /(https?:\/\/\S+|www\.\S+)/gi;
+      const match = display.match(urlRe);
+      if (match) {
+        outEl.innerHTML = display.replace(urlRe, u => `<a href="${u.startsWith('www')?'https://'+u:u}" target="_blank" rel="noopener">${u}</a>`);
+        const ob = document.getElementById('open-btn');
+        ob.href = match[0].startsWith('www') ? 'https://'+match[0] : match[0];
+        ob.classList.add('show');
+        setStatus('Decode complete — link detected');
+      } else {
+        outEl.textContent = display;
+        setStatus('Decode complete');
+      }
+      document.getElementById('output').classList.add('visible');
+    } catch(e) { setStatus('Error: '+e.message); }
+    setTimeout(() => { prog.style.width = '0%'; }, 500);
+    btn.disabled = false;
+  }, 280);
+}
+
+function decode({ px, w, h }) {
+  const G = 32, bW = w/G, bH = h/G, d = px.data;
+  const wb = whiteBuffer();
+  let bits = '', bitsRead = 0, ones = 0;
+  outer: for (let row = 4; row < 28; row++) {
+    for (let col = 4; col < 28; col++) {
+      if (row>=16&&row<=19&&col>=16) continue;
+      if (wb.has(row+','+col)) continue;
+      if (bitsRead >= 680) break outer;
+      const cx = Math.floor(col*bW+bW/2), cy = Math.floor(row*bH+bH/2);
+      const i = (cy*w+cx)*4;
+      const bit = (d[i+2]>140 && d[i]>100 && d[i+1]<100) ? '1' : '0';
+      bits += bit; if (bit==='1') ones++; bitsRead++;
+    }
+  }
+  let text = '';
+  const payload = bits.slice(1);
+  for (let i = 0; i < payload.length; i+=8) {
+    const b = payload.slice(i,i+8);
+    if (b.length<8||b==='00000000') continue;
+    text += String.fromCharCode(parseInt(b,2));
+  }
+  return { text: text.trim(), bits, bitsRead, ones };
+}
+</script>
+</body>
+</html>
