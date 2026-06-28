@@ -565,11 +565,11 @@ function runEncode() {
     // G border
     const B = BLOCK;
     ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, SIZE, B*4);
-    ctx.fillRect(0, 0, B*4, SIZE);
-    ctx.fillRect(0, SIZE - B*4, SIZE, B*4);
-    ctx.fillRect(SIZE - B*4, B*16, SIZE, SIZE);
-    ctx.fillRect(B*16, B*16, SIZE - B*4, B*20);
+    ctx.fillRect(0,        0,        SIZE,              B*4);        // top bar
+    ctx.fillRect(0,        0,        B*4,               SIZE);       // left bar
+    ctx.fillRect(0,        SIZE-B*4, SIZE,              B*4);        // bottom bar
+    ctx.fillRect(SIZE-B*4, B*16,     B*4,               SIZE-B*16);  // right bar
+    ctx.fillRect(B*16,     B*16,     SIZE-B*4 - B*16,   B*4);        // middle prong
 
     // white buffer
     const wb = new Set();
