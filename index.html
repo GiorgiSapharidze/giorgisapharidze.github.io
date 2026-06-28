@@ -18,6 +18,7 @@
     --muted:     #555566;
     --fg:        #E8E8F0;
     --green:     #4ADE80;
+    --red:       #FF5C5C;
   }
   html, body { height: 100%; }
   body {
@@ -30,10 +31,9 @@
   nav {
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 32px; height: 60px;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
+    border-bottom: 1px solid var(--border); flex-shrink: 0;
   }
-  .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+  .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; cursor: pointer; }
   .logo-grid {
     width: 28px; height: 28px; border-radius: 7px; background: var(--purple);
     display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 5px;
@@ -42,13 +42,29 @@
   .logo-grid span:nth-child(3) { background: transparent; }
   .wordmark { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--fg); }
   .wordmark em { color: var(--purple); font-style: normal; }
+
+  /* TAB SWITCHER */
+  .tab-switcher {
+    display: flex; gap: 4px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 4px;
+  }
+  .tab-btn {
+    padding: 6px 20px; border-radius: 7px; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    background: transparent; color: var(--muted); transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--purple); color: #fff; }
+  .tab-btn:not(.active):hover { color: var(--fg); }
   .nav-tag { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
 
   /* MAIN */
-  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 36px 24px; }
+  main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+  .page { display: none; width: 100%; max-width: 860px; }
+  .page.active { display: block; }
 
+  /* CARD */
   .card {
-    width: 100%; max-width: 860px;
     background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
   }
   .card-bar {
@@ -61,15 +77,15 @@
 
   .card-body { display: grid; grid-template-columns: 1fr 1fr; }
 
-  /* drop */
+  /* DROP ZONE */
   .drop-zone {
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 40px 28px; cursor: pointer; min-height: 340px; transition: background 0.15s;
+    padding: 40px 28px; cursor: pointer; min-height: 320px; transition: background 0.15s;
   }
   .drop-zone:hover, .drop-zone.over { background: #1C1C28; }
   .drop-zone input { display: none; }
-  #src-preview { width: 100%; max-height: 300px; object-fit: contain; display: none; border-radius: 8px; }
+  #src-preview { width: 100%; max-height: 280px; object-fit: contain; display: none; border-radius: 8px; }
   .drop-ph { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .drop-icon {
     width: 52px; height: 52px; border-radius: 12px; background: var(--purple-lt);
@@ -81,25 +97,35 @@
   .chips { display: flex; gap: 6px; margin-top: 4px; }
   .chip { padding: 2px 9px; border-radius: 50px; border: 1px solid var(--border); font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); }
 
-  /* right */
+  /* RIGHT PANE (decoder) */
   .right-pane { display: flex; flex-direction: column; padding: 24px; gap: 16px; }
   .pane-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
   #grid-canvas { display: block; width: 100%; border-radius: 8px; border: 1px solid var(--border); image-rendering: pixelated; background: #111; aspect-ratio: 1; margin-top: 8px; }
-  .decode-btn {
+
+  /* BUTTONS */
+  .btn-primary {
     width: 100%; padding: 11px; border-radius: 10px; border: none; cursor: pointer;
     background: var(--purple); color: #fff;
     font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
     display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: opacity 0.15s;
   }
-  .decode-btn:hover:not(:disabled) { opacity: 0.85; }
-  .decode-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-primary:hover:not(:disabled) { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-secondary {
+    width: 100%; padding: 9px; border-radius: 10px; border: 1px solid var(--border); cursor: pointer;
+    background: transparent; color: var(--fg);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--border); }
+  .btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
 
-  /* progress */
+  /* PROGRESS */
   .progress { height: 2px; background: var(--border); }
   .progress-fill { height: 100%; width: 0%; background: var(--purple); transition: width 0.2s; }
 
-  /* output */
+  /* DECODE OUTPUT */
   .output { border-top: 1px solid var(--border); padding: 20px 24px; display: none; }
   .output.visible { display: block; animation: up 0.25s ease; }
   @keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
@@ -119,7 +145,7 @@
   .stat-val { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
   .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  /* status */
+  /* STATUS BAR */
   .status-bar {
     padding: 9px 20px; border-top: 1px solid var(--border);
     font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted);
@@ -127,9 +153,43 @@
   }
   .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 
+  /* ── ENCODER PAGE ──────────────────────────────────────────────────── */
+  .encode-body { display: grid; grid-template-columns: 1fr 1fr; min-height: 320px; }
+
+  .encode-left { border-right: 1px solid var(--border); padding: 28px; display: flex; flex-direction: column; gap: 14px; }
+
+  .textarea-wrap { position: relative; }
+  .msg-textarea {
+    width: 100%; height: 120px;
+    background: #111118; color: var(--fg);
+    font-family: 'DM Mono', monospace; font-size: 13px;
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; resize: none; outline: none;
+    line-height: 1.6; transition: border-color 0.15s;
+  }
+  .msg-textarea:focus { border-color: var(--purple); }
+  .msg-textarea.over-limit { border-color: var(--red); }
+  .char-row { display: flex; justify-content: space-between; align-items: center; }
+  .char-counter { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); }
+  .char-counter.warn { color: var(--red); }
+  .char-warn { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--red); }
+
+  /* encode preview */
+  .encode-right { display: flex; flex-direction: column; padding: 24px; gap: 12px; }
+  #enc-canvas {
+    display: block; width: 100%; border-radius: 8px;
+    border: 1px solid var(--border); image-rendering: pixelated;
+    background: #111; aspect-ratio: 1; flex: 1;
+  }
+  .enc-placeholder {
+    display: flex; align-items: center; justify-content: center;
+    height: 100%; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted);
+    text-align: center; line-height: 1.7;
+  }
+
   /* FOOTER */
   footer {
-    border-top: 1px solid var(--border); padding: 18px 32px; flex-shrink: 0;
+    border-top: 1px solid var(--border); padding: 16px 32px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: space-between;
   }
   .footer-copy { font-size: 12px; color: var(--muted); }
@@ -137,96 +197,166 @@
   .footer-links a { font-size: 12px; color: var(--muted); text-decoration: none; transition: color 0.15s; }
   .footer-links a:hover { color: var(--fg); }
 
-  @media (max-width: 600px) {
-    nav, footer { padding: 0 20px; }
-    .card-body { grid-template-columns: 1fr; }
-    .drop-zone { border-right: none; border-bottom: 1px solid var(--border); min-height: 200px; }
-    footer { flex-direction: column; gap: 12px; text-align: center; height: auto; padding: 16px 20px; }
+  @media (max-width: 620px) {
+    nav { padding: 0 16px; }
+    .card-body, .encode-body { grid-template-columns: 1fr; }
+    .drop-zone { border-right: none; border-bottom: 1px solid var(--border); min-height: 180px; }
+    .encode-left { border-right: none; border-bottom: 1px solid var(--border); }
+    footer { flex-direction: column; gap: 10px; text-align: center; padding: 14px 16px; }
   }
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="#" class="nav-logo">
+  <div class="nav-logo" onclick="void(0)">
     <div class="logo-grid"><span></span><span></span><span></span><span></span></div>
     <span class="wordmark">Gio<em>R</em></span>
-  </a>
-  <span class="nav-tag">code scanner</span>
+  </div>
+  <div class="tab-switcher">
+    <button class="tab-btn active" onclick="switchTab('decode')">Decode</button>
+    <button class="tab-btn"        onclick="switchTab('encode')">Encode</button>
+  </div>
+  <span class="nav-tag">v1.0</span>
 </nav>
 
 <main>
-  <div class="card">
-    <div class="card-bar">
-      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-      <span class="bar-label">gior-scanner v1.0</span>
-    </div>
 
-    <div class="card-body">
-      <div class="drop-zone" id="drop-zone"
-           onclick="document.getElementById('file-input').click()"
-           ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
-        <input type="file" id="file-input" accept="image/*" onchange="loadFile(this.files[0])">
-        <img id="src-preview" alt="source">
-        <div class="drop-ph" id="drop-ph">
-          <div class="drop-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>
+  <!-- ── DECODE PAGE ─────────────────────────────────────────────────────── -->
+  <div class="page active" id="page-decode">
+    <div class="card">
+      <div class="card-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span class="bar-label">gior-decoder</span>
+      </div>
+
+      <div class="card-body">
+        <div class="drop-zone" id="drop-zone"
+             onclick="document.getElementById('file-input').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="file-input" accept="image/*" onchange="loadFile(this.files[0])">
+          <img id="src-preview" alt="source">
+          <div class="drop-ph" id="drop-ph">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/>
+              </svg>
+            </div>
+            <div class="drop-title">Drop a GioR image</div>
+            <div class="drop-sub">or click to browse</div>
+            <div class="chips">
+              <span class="chip">PNG</span><span class="chip">JPG</span><span class="chip">WEBP</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-pane">
+          <div>
+            <div class="pane-label">Grid map</div>
+            <canvas id="grid-canvas"></canvas>
+          </div>
+          <button class="btn-primary" id="decode-btn" onclick="runDecode()" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
             </svg>
-          </div>
-          <div class="drop-title">Drop a GioR image</div>
-          <div class="drop-sub">or click to browse</div>
-          <div class="chips">
-            <span class="chip">PNG</span><span class="chip">JPG</span><span class="chip">WEBP</span>
-          </div>
+            Decode image
+          </button>
         </div>
       </div>
 
-      <div class="right-pane">
-        <div>
-          <div class="pane-label">Grid map</div>
-          <canvas id="grid-canvas"></canvas>
-        </div>
-        <button class="decode-btn" id="decode-btn" onclick="runDecode()" disabled>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+      <div class="progress"><div class="progress-fill" id="dec-prog"></div></div>
+
+      <div class="output" id="output">
+        <div class="pane-label">Decoded payload</div>
+        <div class="output-text" id="output-text"></div>
+        <a class="open-btn" id="open-btn" href="#" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
           </svg>
-          Decode image
-        </button>
+          Open link
+        </a>
+        <div class="stats">
+          <div class="stat"><div class="stat-val" id="s-bits">—</div><div class="stat-lbl">Bits</div></div>
+          <div class="stat"><div class="stat-val" id="s-chars">—</div><div class="stat-lbl">Chars</div></div>
+          <div class="stat"><div class="stat-val" id="s-dens">—</div><div class="stat-lbl">Density</div></div>
+        </div>
       </div>
-    </div>
 
-    <div class="progress"><div class="progress-fill" id="prog"></div></div>
-
-    <div class="output" id="output">
-      <div class="pane-label">Decoded payload</div>
-      <div class="output-text" id="output-text"></div>
-      <a class="open-btn" id="open-btn" href="#" target="_blank" rel="noopener">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-          <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-        Open link
-      </a>
-      <div class="stats">
-        <div class="stat"><div class="stat-val" id="s-bits">—</div><div class="stat-lbl">Bits</div></div>
-        <div class="stat"><div class="stat-val" id="s-chars">—</div><div class="stat-lbl">Chars</div></div>
-        <div class="stat"><div class="stat-val" id="s-dens">—</div><div class="stat-lbl">Density</div></div>
+      <div class="status-bar">
+        <div class="status-dot"></div>
+        <span id="dec-status">Ready — drop a GioR image to begin</span>
       </div>
-    </div>
-
-    <div class="status-bar">
-      <div class="status-dot"></div>
-      <span id="status">Ready — drop a GioR image to begin</span>
     </div>
   </div>
+
+  <!-- ── ENCODE PAGE ─────────────────────────────────────────────────────── -->
+  <div class="page" id="page-encode">
+    <div class="card">
+      <div class="card-bar">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <span class="bar-label">gior-encoder</span>
+      </div>
+
+      <div class="encode-body">
+        <div class="encode-left">
+          <div class="pane-label">Message</div>
+
+          <div class="textarea-wrap">
+            <textarea class="msg-textarea" id="msg-input" maxlength="200"
+              placeholder="Type your message (max 85 characters)…"
+              oninput="onMsgInput()"></textarea>
+          </div>
+
+          <div class="char-row">
+            <span class="char-warn" id="enc-warn"></span>
+            <span class="char-counter" id="char-counter">0 / 85</span>
+          </div>
+
+          <button class="btn-primary" id="enc-btn" onclick="runEncode()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            Generate GioR Code
+          </button>
+
+          <button class="btn-secondary" id="save-btn" onclick="saveEncode()" disabled>
+            Save PNG
+          </button>
+
+          <div class="stats" style="margin-top:0">
+            <div class="stat"><div class="stat-val" id="enc-s-chars">—</div><div class="stat-lbl">Characters</div></div>
+            <div class="stat"><div class="stat-val" id="enc-s-bits">—</div><div class="stat-lbl">Bits used</div></div>
+            <div class="stat"><div class="stat-val" id="enc-s-cap">—</div><div class="stat-lbl">Capacity</div></div>
+          </div>
+        </div>
+
+        <div class="encode-right">
+          <div class="pane-label">Preview</div>
+          <canvas id="enc-canvas">
+            <div class="enc-placeholder">Generated code<br>will appear here</div>
+          </canvas>
+          <div class="enc-placeholder" id="enc-placeholder" style="position:absolute;display:none"></div>
+        </div>
+      </div>
+
+      <div class="progress"><div class="progress-fill" id="enc-prog"></div></div>
+
+      <div class="status-bar">
+        <div class="status-dot"></div>
+        <span id="enc-status">Ready — type a message and click Generate</span>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <footer>
-  <a href="#" class="nav-logo">
+  <div class="nav-logo">
     <div class="logo-grid"><span></span><span></span><span></span><span></span></div>
     <span class="wordmark">Gio<em>R</em></span>
-  </a>
+  </div>
   <span class="footer-copy">© 2025 GioR. Open format.</span>
   <div class="footer-links">
     <a href="#">Docs</a>
@@ -236,8 +366,19 @@
 </footer>
 
 <script>
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DECODER
+// ══════════════════════════════════════════════════════════════════════════════
 let imgData = null;
-const setStatus = t => document.getElementById('status').textContent = t;
+const setDecStatus = t => document.getElementById('dec-status').textContent = t;
 
 function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('over'); }
 function onDragLeave()  { document.getElementById('drop-zone').classList.remove('over'); }
@@ -257,9 +398,9 @@ function loadFile(file) {
       const prev = document.getElementById('src-preview');
       prev.src = e.target.result; prev.style.display = 'block';
       document.getElementById('drop-ph').style.display = 'none';
-      drawGrid(null);
+      drawDecGrid(null);
       document.getElementById('decode-btn').disabled = false;
-      setStatus(`Loaded ${img.width}×${img.height} — click Decode`);
+      setDecStatus(`Loaded ${img.width}×${img.height} — click Decode`);
     };
     img.src = e.target.result;
   };
@@ -274,7 +415,7 @@ function whiteBuffer() {
   return s;
 }
 
-function drawGrid(bits) {
+function drawDecGrid(bits) {
   const cv = document.getElementById('grid-canvas');
   const G = 32, C = 10;
   cv.width = G*C; cv.height = G*C;
@@ -303,10 +444,10 @@ function drawGrid(bits) {
 function runDecode() {
   if (!imgData) return;
   const btn = document.getElementById('decode-btn');
-  btn.disabled = true; setStatus('Decoding…');
+  btn.disabled = true; setDecStatus('Decoding…');
   document.getElementById('output').classList.remove('visible');
   document.getElementById('open-btn').classList.remove('show');
-  const prog = document.getElementById('prog');
+  const prog = document.getElementById('dec-prog');
   prog.style.width = '0%';
   let p = 0; const iv = setInterval(() => { p = Math.min(80, p+15); prog.style.width = p+'%'; }, 40);
 
@@ -315,7 +456,7 @@ function runDecode() {
     try {
       const { text, bits, bitsRead, ones } = decode(imgData);
       const density = bitsRead ? Math.round(ones/bitsRead*100) : 0;
-      drawGrid(bits);
+      drawDecGrid(bits);
       document.getElementById('s-bits').textContent  = bitsRead;
       document.getElementById('s-chars').textContent = text.length;
       document.getElementById('s-dens').textContent  = density+'%';
@@ -328,13 +469,13 @@ function runDecode() {
         const ob = document.getElementById('open-btn');
         ob.href = match[0].startsWith('www') ? 'https://'+match[0] : match[0];
         ob.classList.add('show');
-        setStatus('Decode complete — link detected');
+        setDecStatus('Decode complete — link detected');
       } else {
         outEl.textContent = display;
-        setStatus('Decode complete');
+        setDecStatus('Decode complete');
       }
       document.getElementById('output').classList.add('visible');
-    } catch(e) { setStatus('Error: '+e.message); }
+    } catch(e) { setDecStatus('Error: '+e.message); }
     setTimeout(() => { prog.style.width = '0%'; }, 500);
     btn.disabled = false;
   }, 280);
@@ -363,6 +504,122 @@ function decode({ px, w, h }) {
     text += String.fromCharCode(parseInt(b,2));
   }
   return { text: text.trim(), bits, bitsRead, ones };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ENCODER
+// ══════════════════════════════════════════════════════════════════════════════
+const MAX_CHARS = 85;
+const MAX_BITS  = 680;
+let encCanvas = null; // holds the generated image as an offscreen canvas
+
+const setEncStatus = t => document.getElementById('enc-status').textContent = t;
+
+function onMsgInput() {
+  const val = document.getElementById('msg-input').value;
+  const len = val.length;
+  const counter = document.getElementById('char-counter');
+  const warn    = document.getElementById('enc-warn');
+  const ta      = document.getElementById('msg-input');
+  counter.textContent = `${len} / ${MAX_CHARS}`;
+  if (len > MAX_CHARS) {
+    counter.classList.add('warn');
+    warn.textContent = `⚠ ${len - MAX_CHARS} over limit — will be trimmed`;
+    ta.classList.add('over-limit');
+  } else {
+    counter.classList.remove('warn');
+    warn.textContent = '';
+    ta.classList.remove('over-limit');
+  }
+}
+
+function textToBinary(text) {
+  let bin = '0';
+  for (const ch of text) bin += ch.charCodeAt(0).toString(2).padStart(8, '0');
+  if (bin.length < MAX_BITS) bin = bin.padEnd(MAX_BITS, '0');
+  else if (bin.length > MAX_BITS) bin = bin.slice(0, MAX_BITS);
+  return bin;
+}
+
+function runEncode() {
+  let msg = document.getElementById('msg-input').value.trim();
+  if (!msg) { setEncStatus('Type a message first.'); return; }
+  if (msg.length > MAX_CHARS) msg = msg.slice(0, MAX_CHARS);
+
+  const prog = document.getElementById('enc-prog');
+  prog.style.width = '0%';
+  let p = 0; const iv = setInterval(() => { p = Math.min(85, p+20); prog.style.width = p+'%'; }, 30);
+  setEncStatus('Generating…');
+
+  setTimeout(() => {
+    clearInterval(iv); prog.style.width = '100%';
+
+    const GRID = 32, BLOCK = 15, SIZE = GRID * BLOCK;
+    const cv = document.createElement('canvas');
+    cv.width = SIZE; cv.height = SIZE;
+    const ctx = cv.getContext('2d');
+
+    // background
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, SIZE, SIZE);
+
+    // G border
+    const B = BLOCK;
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, SIZE, B*4);
+    ctx.fillRect(0, 0, B*4, SIZE);
+    ctx.fillRect(0, SIZE - B*4, SIZE, B*4);
+    ctx.fillRect(SIZE - B*4, B*16, SIZE, SIZE);
+    ctx.fillRect(B*16, B*16, SIZE - B*4, B*20);
+
+    // white buffer
+    const wb = new Set();
+    for (let r = 12; r < 24; r++)
+      for (let c = 12; c < 28; c++)
+        if (!(r >= 16 && r <= 19 && c >= 16)) wb.add(r+','+c);
+
+    const bin = textToBinary(msg);
+    let idx = 0;
+    for (let row = 4; row < 28; row++) {
+      for (let col = 4; col < 28; col++) {
+        const prong = (row>=16&&row<=19&&col>=16);
+        const buf   = wb.has(row+','+col);
+        if (!prong && !buf && idx < bin.length) {
+          if (bin[idx] === '1') {
+            ctx.fillStyle = '#8A2BE2';
+            ctx.fillRect(col*B, row*B, B, B);
+          }
+          idx++;
+        }
+      }
+    }
+
+    encCanvas = cv;
+
+    // draw scaled preview
+    const preview = document.getElementById('enc-canvas');
+    preview.width  = SIZE;
+    preview.height = SIZE;
+    const pctx = preview.getContext('2d');
+    pctx.drawImage(cv, 0, 0);
+
+    const bitsUsed = msg.length * 8 + 1;
+    document.getElementById('enc-s-chars').textContent = msg.length;
+    document.getElementById('enc-s-bits').textContent  = bitsUsed;
+    document.getElementById('enc-s-cap').textContent   = Math.round(bitsUsed/MAX_BITS*100) + '%';
+    document.getElementById('save-btn').disabled = false;
+
+    setTimeout(() => { prog.style.width = '0%'; }, 500);
+    setEncStatus('GioR code generated — save or encode another message');
+  }, 200);
+}
+
+function saveEncode() {
+  if (!encCanvas) return;
+  const link = document.createElement('a');
+  link.download = 'gior_code.png';
+  link.href = encCanvas.toDataURL('image/png');
+  link.click();
+  setEncStatus('PNG saved to downloads');
 }
 </script>
 </body>
